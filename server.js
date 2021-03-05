@@ -4,6 +4,7 @@ const Mongoose = require('mongoose');
 
 const Product = require('./models/product');
 
+
 const app = Express();
 
 app.use(BodyParser.json());
@@ -90,11 +91,20 @@ app.patch('/products/:sku', async (request, response) => {
 });
 
 (async () => {
-  await Mongoose.connect('mongodb+srv://admin:admin@cluster0-cde82.mongodb.net/mongodb?retryWrites=true&w=majority', {
+  await Mongoose.connect('mongodb+srv://new_user:admin@cluster0.jsbit.mongodb.net/Cluster0?retryWrites=true&w=majority', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true,
   });
   app.listen(8000);
+
+
 })();
+
+const db = Mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  // we're connected!
+  console.log("Database connection has been open");
+});
