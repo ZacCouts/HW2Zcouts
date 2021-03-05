@@ -3,6 +3,7 @@ const BodyParser = require('body-parser');
 const Mongoose = require('mongoose');
 
 const Product = require('./models/product');
+const User = require('./models/user');
 
 
 const app = Express();
@@ -21,7 +22,7 @@ const doActionThatMightFailValidation = async (request, response, action) => {
     );
   }
 };
-
+//For product
 app.get('/products', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
     response.json(await Product.find(request.query).select('-_id -__v'));
@@ -90,6 +91,75 @@ app.patch('/products/:sku', async (request, response) => {
   });
 });
 
+//For User
+app.get('/users', async (request, response) => {
+  await doActionThatMightFailValidation(request, response, async () => {
+    response.json(await User.find(request.query).select('-_id -__v'));
+  });
+});
+
+app.get('/users/:ssn', async (request, response) => {
+  await doActionThatMightFailValidation(request, response, async () => {
+    const getResult = await User.findOne({ ssn: request.params.sku }).select('-_id -__v');
+    if (getResult != null) {
+      response.json(getResult);
+    } else {
+      response.sendStatus(404);
+    }
+  });
+});
+
+app.post('/users', async (request, response) => {
+  await doActionThatMightFailValidation(request, response, async () => {
+    await new User(request.body).save();
+    response.sendStatus(201);
+  });
+});
+
+app.delete('/users', async (request, response) => {
+  await doActionThatMightFailValidation(request, response, async () => {
+    response.sendStatus((await User.deleteMany(request.query)).deletedCount > 0 ? 200 : 404);
+  });
+});
+
+app.delete('/users/:ssn', async (request, response) => {
+  await doActionThatMightFailValidation(request, response, async () => {
+    response.sendStatus((await User.deleteOne({
+      ssn: request.params.ssn,
+    })).deletedCount > 0 ? 200 : 404);
+  });
+});
+
+app.put('/users/:ssn', async (request, response) => {
+  const { ssn } = request.params;
+  const user = request.body;
+  user.ssn = ssn;
+  await doActionThatMightFailValidation(request, response, async () => {
+    await User.findOneAndReplace({ ssn }, user, {
+      upsert: true,
+    });
+    response.sendStatus(200);
+  });
+});
+
+app.patch('/users/:ssn', async (request, response) => {
+  const { ssn } = request.params;
+  const user = request.body;
+  delete user.ssn;
+  await doActionThatMightFailValidation(request, response, async () => {
+    const patchResult = await User
+        .findOneAndUpdate({ ssn }, user, {
+          new: true,
+        })
+        .select('-_id -__v');
+    if (patchResult != null) {
+      response.json(patchResult);
+    } else {
+      response.sendStatus(404);
+    }
+  });
+});
+
 (async () => {
   await Mongoose.connect('mongodb+srv://new_user:admin@cluster0.jsbit.mongodb.net/Cluster0?retryWrites=true&w=majority', {
     useNewUrlParser: true,
@@ -108,5 +178,3 @@ db.once('open', function() {
   // we're connected!
   console.log("Database connection has been open");
 });
-
-//Very git is working
