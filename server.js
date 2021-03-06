@@ -4,6 +4,7 @@ const Mongoose = require('mongoose');
 
 const Product = require('./models/product');
 const User = require('./models/user');
+require('dotenv').config();
 
 
 const app = Express();
@@ -161,7 +162,7 @@ app.patch('/users/:ssn', async (request, response) => {
 });
 
 (async () => {
-  await Mongoose.connect('mongodb+srv://new_user:admin@cluster0.jsbit.mongodb.net/Cluster0?retryWrites=true&w=majority', {
+  await Mongoose.connect(process.env.Credentials, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
