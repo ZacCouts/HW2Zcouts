@@ -6,7 +6,6 @@ const Product = require('./models/product');
 const User = require('./models/user');
 require('dotenv').config();
 
-
 const app = Express();
 
 app.use(BodyParser.json());
@@ -23,7 +22,7 @@ const doActionThatMightFailValidation = async (request, response, action) => {
     );
   }
 };
-//For product
+// For product
 app.get('/products', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
     response.json(await Product.find(request.query).select('-_id -__v'));
@@ -92,7 +91,7 @@ app.patch('/products/:sku', async (request, response) => {
   });
 });
 
-//For User
+// For User
 app.get('/users', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
     response.json(await User.find(request.query).select('-_id -__v'));
@@ -149,10 +148,10 @@ app.patch('/users/:ssn', async (request, response) => {
   delete user.ssn;
   await doActionThatMightFailValidation(request, response, async () => {
     const patchResult = await User
-        .findOneAndUpdate({ ssn }, user, {
-          new: true,
-        })
-        .select('-_id -__v');
+      .findOneAndUpdate({ ssn }, user, {
+        new: true,
+      })
+      .select('-_id -__v');
     if (patchResult != null) {
       response.json(patchResult);
     } else {
@@ -169,13 +168,11 @@ app.patch('/users/:ssn', async (request, response) => {
     useCreateIndex: true,
   });
   app.listen(8000);
-
-
 })();
 
 const db = Mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+db.once('open', () => {
   // we're connected!
-  console.log("Database connection has been open");
+  console.log('Database connection has been open');
 });
