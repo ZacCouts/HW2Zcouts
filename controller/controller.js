@@ -1,11 +1,4 @@
-const Express = require('express');
-const BodyParser = require('body-parser');
-
 const Serv = require('../database/dbService');
-
-const app = Express();
-
-app.use(BodyParser.json());
 
 const doActionThatMightFailValidation = async (request, response, action) => {
   try {
