@@ -1,8 +1,11 @@
 const Express = require('express');
-// eslint-disable-next-line import/no-unresolved
-const Serv = require('./database/dbService');
+const BodyParser = require('body-parser');
+
+const Serv = require('../database/dbService');
 
 const app = Express();
+
+app.use(BodyParser.json());
 
 const doActionThatMightFailValidation = async (request, response, action) => {
   try {
@@ -10,13 +13,13 @@ const doActionThatMightFailValidation = async (request, response, action) => {
   } catch (e) {
     response.sendStatus(
       e.code === 11000
-                || e.stack.includes('ValidationError')
-                || (e.reason !== undefined && e.reason.code === 'ERR_ASSERTION')
+        || e.stack.includes('ValidationError')
+        || (e.reason !== undefined && e.reason.code === 'ERR_ASSERTION')
         ? 400 : 500,
     );
   }
 };
-  // For product
+
 app.get('/products', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
     response.json(await Serv.find(request.query).select('-_id -__v'));
@@ -85,7 +88,6 @@ app.patch('/products/:sku', async (request, response) => {
   });
 });
 
-// For User
 app.get('/users', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
     response.json(await Serv.find(request.query).select('-_id -__v'));
@@ -94,7 +96,7 @@ app.get('/users', async (request, response) => {
 
 app.get('/users/:ssn', async (request, response) => {
   await doActionThatMightFailValidation(request, response, async () => {
-    const getResult = await Serv.findOne({ ssn: request.params.sku }).select('-_id -__v');
+    const getResult = await Serv.findOne({ ssn: request.params.ssn }).select('-_id -__v');
     if (getResult != null) {
       response.json(getResult);
     } else {
@@ -129,6 +131,7 @@ app.put('/users/:ssn', async (request, response) => {
   const user = request.body;
   user.ssn = ssn;
   await doActionThatMightFailValidation(request, response, async () => {
+    // eslint-disable-next-line no-undef
     await Serv.findOneAndReplace({ ssn }, user, {
       upsert: true,
     });
